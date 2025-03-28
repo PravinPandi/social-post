@@ -35,7 +35,7 @@ const { TextArea } = Input;
 
 const SocialMediaPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { posts, loading } = useSelector((state: RootState) => state.posts);
+  const { posts } = useSelector((state: RootState) => state.posts);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPost, setEditingPost] = useState<any | null>(null);
