@@ -31,7 +31,7 @@ export const updatePost = async (req, res) => {
   try {
     const updatedPost = await Post.findByIdAndUpdate(
       id,
-      { title, content, image },
+      { title: title, content: content, image: image ? image : null },
       { new: true }
     );
     res.json(updatedPost);

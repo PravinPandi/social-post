@@ -30,6 +30,8 @@ import {
   ShareAltOutlined,
 } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { Dropdown, Menu } from 'antd';
 
 const { TextArea } = Input;
 
@@ -73,11 +75,17 @@ const SocialMediaPage: React.FC = () => {
 
     if (fileList.length > 0) {
       const file = fileList[0].originFileObj as File;
-      try {
-        base64Image = await convertToBase64(file);
-      } catch (error) {
-        message.error('Failed to process the image');
-        return;
+
+      // Check if the file is already in base64 format
+      if (fileList[0].url && fileList[0].url.startsWith('data:image')) {
+        base64Image = fileList[0].url; // Use the existing base64 URL
+      } else {
+        try {
+          base64Image = await convertToBase64(file);
+        } catch (error) {
+          message.error('Failed to process the image');
+          return;
+        }
       }
     }
 
@@ -132,72 +140,98 @@ const SocialMediaPage: React.FC = () => {
           </Button>
         }
       >
-        <p>What's on your mind?</p>
+        <div
+          onClick={() => setIsModalVisible(true)}
+          style={{ cursor: 'pointer' }}
+        >
+          <p>What's on your mind?</p>
+        </div>
       </Card>
 
       <List
         itemLayout='vertical'
         size='large'
         dataSource={posts}
-        renderItem={(post: any) => (
-          <Card
-            key={post._id}
-            title={post.title}
-            extra={
-              <Space>
-                <Button
-                  type='text'
-                  icon={<EditOutlined />}
-                  onClick={() => handleEdit(post)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  type='text'
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleDelete(post._id)}
-                >
-                  Delete
-                </Button>
-              </Space>
-            }
-            style={{ marginBottom: '20px' }}
-          >
-            <List.Item.Meta
-              avatar={<Avatar icon={<UserOutlined />} />}
-              description={new Date(post.createdAt).toLocaleString()}
-            />
-            {post.image && (
-              <div style={{ margin: '10px 0' }}>
-                <Image
-                  width='100%'
-                  src={post.image}
-                  alt='Post image'
-                  style={{ borderRadius: '8px' }}
-                />
-              </div>
-            )}
-            <p>{post.content}</p>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-around',
-                marginTop: '10px',
-              }}
+        renderItem={(post: any) => {
+          const menu = (
+            <Menu>
+              <Menu.Item key='edit' onClick={() => handleEdit(post)}>
+                <EditOutlined /> Edit
+              </Menu.Item>
+              <Menu.Item
+                key='delete'
+                danger
+                onClick={() => handleDelete(post._id)}
+              >
+                <DeleteOutlined /> Delete
+              </Menu.Item>
+            </Menu>
+          );
+
+          return (
+            <Card
+              key={post._id}
+              title={post.title}
+              extra={
+                <Dropdown overlay={menu} trigger={['click']}>
+                  <Button type='text' icon={<EllipsisOutlined />} />
+                </Dropdown>
+              }
+              style={{ marginBottom: '20px' }}
             >
-              <Space>
-                <LikeOutlined /> Like
-              </Space>
-              <Space>
-                <CommentOutlined /> Comment
-              </Space>
-              <Space>
-                <ShareAltOutlined /> Share
-              </Space>
-            </div>
-          </Card>
-        )}
+              <List.Item.Meta
+                description={
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar
+                        icon={<UserOutlined />}
+                        style={{ marginRight: '8px' }}
+                      />
+                      <span>
+                        <b>Praveen Pandi</b>
+                      </span>
+                    </div>
+                    <span>{new Date(post.createdAt).toLocaleString()}</span>
+                  </div>
+                }
+              />
+              <p>{post.content}</p>
+              {post.image && (
+                <div style={{ margin: '10px 0' }}>
+                  <Image
+                    width='100%'
+                    src={post.image}
+                    alt='Post image'
+                    style={{ borderRadius: '8px' }}
+                  />
+                </div>
+              )}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  marginTop: '10px',
+                }}
+              >
+                <Space>
+                  <LikeOutlined /> Like
+                </Space>
+                <Space>
+                  <CommentOutlined /> Comment
+                </Space>
+                <Space>
+                  <ShareAltOutlined /> Share
+                </Space>
+              </div>
+            </Card>
+          );
+        }}
       />
 
       <Modal

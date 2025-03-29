@@ -52,7 +52,7 @@ const postSlice = createSlice({
       // Update post
       .addCase(updatePost.fulfilled, (state, action) => {
         const index = state.posts.findIndex(
-          (post) => post.id === action.payload.id
+          (post: any) => post._id === action.payload._id
         );
         if (index !== -1) {
           state.posts[index] = action.payload;
@@ -60,7 +60,9 @@ const postSlice = createSlice({
       })
       // Delete post
       .addCase(deletePost.fulfilled, (state, action) => {
-        state.posts = state.posts.filter((post) => post.id !== action.payload);
+        state.posts = state.posts.filter(
+          (post: any) => post._id !== action.payload
+        );
       });
   },
 });
